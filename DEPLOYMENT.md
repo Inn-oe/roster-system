@@ -1,31 +1,52 @@
 # Deployment Guide
 
-This guide explains how to deploy your Roster System to free hosting services.
+## Architecture
+- **Backend**: Fly.io — always active, free tier, never sleeps
+- **Database**: SQLite stored on a persistent Fly.io volume (no external DB needed, no cost)
+- **Frontend**: Vercel — free, always active
 
-## Prerequisites
-1. Create a GitHub account if you don't have one, and push this folder to a new repository.
-2. Create an account on [Neon](https://neon.tech/) for the free Serverless Postgres database.
-3. Create an account on [Render](https://render.com/) for the free Python backend.
-4. Create an account on [Vercel](https://vercel.com/) for the free React frontend.
+---
 
-## 1. Database (Neon)
-- Go to Neon console, create a new project.
-- Once created, copy the connection string (it looks like `postgresql://user:password@endpoint.neon.tech/dbname?sslmode=require`).
+## Step 1 — Install Fly CLI
+Download and install from: https://fly.io/docs/hands-on/install-flyctl/
 
-## 2. Backend (Render)
-- On Render, go to **Dashboard > Blueprints > New Blueprint Instance**.
-- Connect your GitHub repository.
-- Render will read the `render.yaml` file in the root directory.
-- It will ask for the `DATABASE_URL` environment variable. Paste the connection string from Neon.
-- Click **Apply**. Render will automatically build and deploy the FastAPI backend.
-- Once deployed, copy the backend URL (e.g., `https://roster-backend-xyz.onrender.com`).
+Or run this in PowerShell:
+```powershell
+iwr https://fly.io/install.ps1 -useb | iex
+```
 
-## 3. Frontend (Vercel)
-- Go to Vercel and **Add New Project**.
-- Connect your GitHub repository.
-- Expand **Framework Preset** and select **Vite**.
-- Set the **Root Directory** to `frontend`.
-- Add an Environment Variable: `VITE_API_URL` and set its value to your Render backend URL.
-- Click **Deploy**.
+---
 
-That's it! Your system is fully deployed.
+## Step 2 — Log in to Fly.io
+```powershell
+flyctl auth login
+```
+This opens a browser to sign up / log in (free account, no credit card required).
+
+---
+
+## Step 3 — Deploy the Backend
+
+```powershell
+cd c:\Users\Innoe\Desktop\ROSTER
+flyctl launch --no-deploy
+flyctl volumes create roster_data --size 1
+flyctl deploy
+```
+
+After deploy, copy your backend URL (e.g., `https://roster-system.fly.dev`).
+
+---
+
+## Step 4 — Deploy the Frontend (Vercel)
+1. Go to https://vercel.com and sign in with GitHub.
+2. Click **Add New Project** → Import `Inn-oe/roster-system`.
+3. Set **Root Directory** to `frontend`.
+4. Add Environment Variable:
+   - Key: `VITE_API_URL`
+   - Value: your Fly.io backend URL (e.g. `https://roster-system.fly.dev`)
+5. Click **Deploy**.
+
+---
+
+Your roster system will be live, always on, and completely free!
